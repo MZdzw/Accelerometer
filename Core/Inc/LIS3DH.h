@@ -173,6 +173,7 @@ uint16_t readregister16(uint8_t addr);
 void get_Acc(uint8_t *x, uint8_t *y, uint8_t *z);
 
 float convertToG(int8_t val);
+void convertToG2(float *Xval, float *Yval);
 
 
 #endif /* INC_LIS3DH_H_ */

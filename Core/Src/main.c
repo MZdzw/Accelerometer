@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "LIS3DH.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,7 +45,10 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+void uprintf(char *str)
+{
+	HAL_UART_Transmit(&huart2, (uint8_t *)str, strlen(str), 100);
+}
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -66,7 +69,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	char buffer[32] = {0};
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -105,9 +108,12 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  get_Acc(&X, &Y, &Z);
-	  YG = convertToG(Y);
 	  XG = convertToG(X);
-	  HAL_Delay(1000);
+	  YG = convertToG(Y);
+	  //convertToG2(&XG, &YG);
+	  sprintf(buffer, "X = %f\n\r", XG); // @suppress("Float formatting support")
+	  uprintf(buffer);
+	  HAL_Delay(200);
   }
   /* USER CODE END 3 */
 }

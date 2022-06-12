@@ -114,3 +114,44 @@ float convertToG(int8_t val)
 	return angleDeviation;
 }
 
+void convertToG2(float *Xval, float *Yval)
+{
+	const uint8_t Gvalue = 64;
+	if(*Xval <= 122)		//The G vector is zero or is negative
+	{
+		*Xval *= (-1);
+	}
+	else		//The G vector is positive
+	{
+		*Xval = (int)abs(256-(*Xval));
+	}
+	if(*Xval >= -64 && *Xval < 64)
+	{
+		*Xval = asin(*Xval/Gvalue);
+	}
+	else
+	{
+		*Xval = asin(*Xval/(2*Gvalue));
+	}
+
+	if(*Yval <= 122)		//The G vector is zero or is negative
+	{
+		*Yval *= (-1);
+	}
+	else		//The G vector is positive
+	{
+		*Yval = (int)abs(256-(*Yval));
+	}
+	if(*Yval >= -64 && *Yval < 64)
+	{
+		*Yval = asin(*Yval/Gvalue);
+	}
+	else
+	{
+		*Yval = asin(*Yval/(2*Gvalue));
+	}
+
+	*Xval *= 180/M_PI;
+	*Yval *= 180/M_PI;
+}
+
