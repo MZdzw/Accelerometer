@@ -26,6 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "LIS3DH.h"
+#include "motor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -70,6 +71,9 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	char buffer[32] = {0};
+	uint8_t count = 0;
+	uint8_t process = 0;
+	uint8_t gpio_id = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -113,7 +117,24 @@ int main(void)
 	  //convertToG2(&XG, &YG);
 	  sprintf(buffer, "X = %f\n\r", XG); // @suppress("Float formatting support")
 	  uprintf(buffer);
-	  HAL_Delay(200);
+	  if(XG <= -5 && YG > 0)
+	  {
+		  gpio_id = turn_clockwise(gpio_id);
+	  }
+	  else if(XG <= -5 && YG < 0)
+	  {
+		  gpio_id = turn_anticlockwise(gpio_id);
+	  }
+	  else if(XG >= 5 && YG > 0)
+	  {
+		  gpio_id = turn_anticlockwise(gpio_id);
+	  }
+	  else if(XG >= 5 && YG < 0)
+	  {
+		  gpio_id = turn_clockwise(gpio_id);
+	  }
+	  count++;
+	  HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
