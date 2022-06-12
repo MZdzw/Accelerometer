@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "i2c.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -55,12 +56,19 @@ void uprintf(char *str)
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void measurementAndConversion();
+void rotationLogic();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+char buffer[32] = {0};
+volatile uint8_t X, Y, Z;
+volatile float YG = 0.0;
+volatile float XG = 0.0;
+volatile uint8_t gpio_id = 0;
+uint8_t counter = 0;
+float measuremntsX[10] = {0};
 /* USER CODE END 0 */
 
 /**
@@ -70,10 +78,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	char buffer[32] = {0};
-	uint8_t count = 0;
-	uint8_t process = 0;
-	uint8_t gpio_id = 0;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -96,12 +101,12 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_I2C1_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  uint8_t X, Y, Z;
-  uint8_t ok = setup();			//setup accelerometer
-  float YG = 0.0;
-  float XG = 0.0;
 
+  uint8_t ok = setup();			//setup accelerometer
+
+  HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,30 +116,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  get_Acc(&X, &Y, &Z);
-	  XG = convertToG(X);
-	  YG = convertToG(Y);
-	  //convertToG2(&XG, &YG);
-	  sprintf(buffer, "X = %f\n\r", XG); // @suppress("Float formatting support")
-	  uprintf(buffer);
-	  if(XG <= -5 && YG > 0)
-	  {
-		  gpio_id = turn_clockwise(gpio_id);
-	  }
-	  else if(XG <= -5 && YG < 0)
-	  {
-		  gpio_id = turn_anticlockwise(gpio_id);
-	  }
-	  else if(XG >= 5 && YG > 0)
-	  {
-		  gpio_id = turn_anticlockwise(gpio_id);
-	  }
-	  else if(XG >= 5 && YG < 0)
-	  {
-		  gpio_id = turn_clockwise(gpio_id);
-	  }
-	  count++;
-	  HAL_Delay(10);
+	  //__HAL_TIM_GET_COUNTER(&htim2);
+
   }
   /* USER CODE END 3 */
 }
@@ -177,6 +160,56 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == TIM2)
+	{
+		if(counter > 4)
+		{
+			measurementAndConversion();
+			sprintf(buffer, "X = %f\n\r", XG); // @suppress("Float formatting support")
+			uprintf(buffer);
+			counter = 0;
+		}
+		rotationLogic();
+		counter++;
+	}
+}
+
+void measurementAndConversion()
+{
+	get_Acc(&X, &Y, &Z);
+	XG = convertToG(X);
+	YG = convertToG(Y);
+	float sum = 0;
+	for(int8_t i = 8; i >= 0; i--)
+	{
+		measuremntsX[i+1] = measuremntsX[i];
+		sum += measuremntsX[i+1];
+	}
+	measuremntsX[0] = XG;
+	XG = (sum + measuremntsX[0])/10;		//mean of 10 last values
+}
+
+void rotationLogic()
+{
+	if(XG <= -5 && YG > 0)
+	{
+		gpio_id = turn_clockwise(gpio_id);
+	}
+	else if(XG <= -5 && YG < 0)
+	{
+		gpio_id = turn_anticlockwise(gpio_id);
+	}
+	else if(XG >= 5 && YG > 0)
+	{
+		gpio_id = turn_anticlockwise(gpio_id);
+	}
+	else if(XG >= 5 && YG < 0)
+	{
+		gpio_id = turn_clockwise(gpio_id);
+	}
+}
 
 /* USER CODE END 4 */
 
