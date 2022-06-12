@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "LIS3DH.h"
+#include "NumToText.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -97,6 +98,9 @@ int main(void)
   uint8_t X, Y, Z;
   uint8_t ok = setup();			//setup accelerometer
 
+  char str[5];
+  uint8_t dig;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -107,6 +111,8 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  get_Acc(&X, &Y, &Z);
+	  Num_To_Text(Y, str, &dig);
+	  HAL_UART_Transmit(&huart2, (uint8_t *)str, dig+2, 100);
 	  HAL_Delay(1000);
   }
   /* USER CODE END 3 */
