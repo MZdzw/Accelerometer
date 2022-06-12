@@ -115,3 +115,29 @@ void get_Acc(uint8_t *x, uint8_t *y, uint8_t *z)
 	//*z |= 0x00FF;
 }
 
+float convertToG(int8_t val)
+{
+	//float unitDegree = 1.47;		//increase val by 1 -> increase degree by 1.5
+	float angleDeviation = 0.0;
+	const uint8_t Gvalue = 64;
+	if(val <= 122)		//The G vector is zero or is negative
+	{
+		val = val*(-1);
+	}
+	else		//The G vector is positive
+	{
+		val = abs(256-val);
+	}
+	if(val >= -64 && val < 64)
+	{
+		angleDeviation = asin((float)val/Gvalue);
+	}
+	else
+	{
+		angleDeviation = asin(val/(2*Gvalue));
+	}
+	angleDeviation = angleDeviation*180/M_PI;
+
+	return angleDeviation;
+}
+

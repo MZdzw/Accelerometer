@@ -96,6 +96,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   uint8_t X, Y, Z;
   uint8_t ok = setup();			//setup accelerometer
+  float YG = 0.0;
+  float XG = 0.0;
 
   /* USER CODE END 2 */
 
@@ -107,6 +109,8 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  get_Acc(&X, &Y, &Z);
+	  YG = convertToG(Y);
+	  XG = convertToG(X);
 	  HAL_Delay(1000);
   }
   /* USER CODE END 3 */

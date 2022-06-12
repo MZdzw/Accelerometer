@@ -10,6 +10,7 @@
  //#include "stm32f1xx_hal_i2c.h"
 #include "main.h"
 #include "stm32f1xx_hal_i2c.h"
+#include <math.h>
 
 static const uint8_t WHO_AM_I = 0b00110011;
 static const uint8_t SAD0 = 0x18;	//Low
@@ -169,6 +170,8 @@ uint8_t readregister8(uint8_t addr);
 uint16_t readregister16(uint8_t addr);
 
 void get_Acc(uint8_t *x, uint8_t *y, uint8_t *z);
+
+float convertToG(int8_t val);
 
 
 #endif /* INC_LIS3DH_H_ */
