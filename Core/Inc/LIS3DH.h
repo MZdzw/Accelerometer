@@ -10,6 +10,7 @@
  //#include "stm32f1xx_hal_i2c.h"
 #include "main.h"
 #include "stm32f1xx_hal_i2c.h"
+#include "i2c.h"
 #include <math.h>
 
 static const uint8_t WHO_AM_I = 0b00110011;
